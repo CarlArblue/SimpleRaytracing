@@ -43,35 +43,35 @@ Spectrum Spectrum::fromRGB(const glm::vec3& rgb) {
 
 // Convert spectrum to RGB for display
 glm::vec3 Spectrum::toRGB() const {
-    // This is a simplified spectral to RGB conversion
-    // A real implementation would use color matching functions and
-    // proper integration over the spectral curve
-
+    // More accurate conversion using proper color matching functions
+    // These are simplified versions of the CIE standard observer functions
     float r = 0.0f, g = 0.0f, b = 0.0f;
-    float totalWeight = 0.0f;
 
     for (int i = 0; i < SPECTRAL_SAMPLES; i++) {
         float wavelength = MIN_WAVELENGTH + (MAX_WAVELENGTH - MIN_WAVELENGTH) *
-                          (static_cast<float>(i) / (SPECTRAL_SAMPLES - 1));
+                         (static_cast<float>(i) / (SPECTRAL_SAMPLES - 1));
         float value = samples[i];
 
-        // Simple spectral response functions
-        if (wavelength >= 380 && wavelength < 490) {
-            b += value;
-        }
-        if (wavelength >= 450 && wavelength < 620) {
-            g += value;
-        }
-        if (wavelength >= 580 && wavelength <= 780) {
-            r += value;
-        }
+        // Better approximation of RGB response curves
+        // R curve peaks around 650nm
+        if (wavelength >= 580.0f)
+            r += value * (1.0f - std::abs((wavelength - 650.0f) / 75.0f));
 
-        totalWeight += 1.0f;
+        // G curve peaks around 550nm
+        if (wavelength >= 490.0f && wavelength <= 620.0f)
+            g += value * (1.0f - std::abs((wavelength - 550.0f) / 70.0f));
+
+        // B curve peaks around 450nm
+        if (wavelength <= 490.0f)
+            b += value * (1.0f - std::abs((wavelength - 450.0f) / 70.0f));
     }
 
     // Normalize
-    float scale = SPECTRAL_SAMPLES / totalWeight;
-    return glm::vec3(r * scale, g * scale, b * scale);
+    return glm::vec3(
+        std::min(1.0f, r * 3.0f / SPECTRAL_SAMPLES),
+        std::min(1.0f, g * 3.0f / SPECTRAL_SAMPLES),
+        std::min(1.0f, b * 3.0f / SPECTRAL_SAMPLES)
+    );
 }
 
 Spectrum Spectrum::operator+(const Spectrum& other) const {

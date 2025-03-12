@@ -17,7 +17,7 @@ int main() {
         return -1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Animated Raytracer",
+    SDL_Window* window = SDL_CreateWindow("Monte Carlo Path tracing Spectral Rendering",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           Renderer::WIDTH, Renderer::HEIGHT,

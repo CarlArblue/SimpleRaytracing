@@ -14,14 +14,15 @@
 #include <limits>
 
 // Global constants.
-static const int maxDepth = 1;            // Reflection recursion depth.
-static const float shadowBias = 1e-4f;      // To avoid self-intersection.
-static const glm::vec3 backgroundColor(0.2f, 0.7f, 0.8f); // Background color.
+static constexpr int maxDepth = 2;              // Reflection recursion depth.
+static constexpr int samplesPerPixel = 16;      // Increase for less noise.
+static constexpr float shadowBias = 1e-4f;      // To avoid self-intersection.
+static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.0f, 0.0f, 0.0f)); // Change the background color to a spectrum
 
-// Change the background color to a spectrum
-static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.2f, 0.7f, 0.8f));
+static constexpr float fov = M_PI / 3.0f; // 60° field of view.
+static const float scale = std::tan(fov / 2.0f);
 
-// Update the traceRay function to use Spectrum
+// raceRaySpectral function to use Spectral rendering
 Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
                    const glm::vec3& rayDir,
                    int depth,
@@ -55,11 +56,11 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
         HitRecord shadowRec;
         if (entity->intersect(shadowOrigin, lightDir, shadowRec)) {
             inShadow = true;
-            break;
+            break;  // This break is important for efficiency
         }
     }
     if (inShadow)
-        diffuse *= 0.3f;  // Darken if in shadow.
+        diffuse *= 0.3f;  // Darken if in shadow. Should be dependent on the surface of the entity.
 
     Spectrum localColor = closestHit.color * diffuse;
 
@@ -80,12 +81,10 @@ void Renderer::renderImage(uint32_t* pixels,
                            const glm::vec3& forward,
                            const glm::vec3& right,
                            const glm::vec3& up) {
-    float fov = M_PI / 3.0f; // 60° field of view.
-    float scale = std::tan(fov / 2.0f);
-    float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
-    glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, -1.0f, -1.0f));
 
-    const int samplesPerPixel = 16; // Increase for less noise.
+    float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
+    glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, -1.0f, -1.0f)); // Does not have a color??
+
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             Spectrum pixelSpectrum;
