@@ -14,10 +14,12 @@
 #include <limits>
 
 // Global constants.
-static constexpr int maxDepth = 2;              // Reflection recursion depth.
+static constexpr int maxDepth = 3;              // Reflection recursion depth.
 static constexpr int samplesPerPixel = 16;      // Increase for less noise.
 static constexpr float shadowBias = 1e-4f;      // To avoid self-intersection.
-static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.0f, 0.0f, 0.0f)); // Change the background color to a spectrum
+static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.0f, 0.0f, 0.0f)); // Black background
+static const Spectrum lightSpectrum = Spectrum::fromRGB(glm::vec3(1.0f, 1.0f, 1.0f)); // White light
+static const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)); // Light direction
 
 static constexpr float fov = M_PI / 3.0f; // 60° field of view.
 static const float scale = std::tan(fov / 2.0f);
@@ -62,7 +64,7 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     if (inShadow)
         diffuse *= 0.3f;  // Darken if in shadow. Should be dependent on the surface of the entity.
 
-    Spectrum localColor = closestHit.color * diffuse;
+    Spectrum localColor = closestHit.color * lightSpectrum * diffuse;
 
     // Monte Carlo diffuse bounce: randomly sample a direction in the hemisphere.
     if (depth < maxDepth) {
@@ -83,7 +85,6 @@ void Renderer::renderImage(uint32_t* pixels,
                            const glm::vec3& up) {
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
-    glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, -1.0f, -1.0f)); // Does not have a color??
 
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {

@@ -40,7 +40,12 @@ bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecor
 
     rec.t = t;
     rec.hitPoint = origin + dir * t;
-    rec.normal = glm::normalize(glm::cross(edge1, edge2));
+    glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+    // Ensure normal faces toward the ray origin
+    if (glm::dot(normal, dir) > 0.0f) {
+        normal = -normal; // Flip normal if it's facing away from the ray
+    }
+    rec.normal = normal;
     rec.color = color;
     return true;
 }

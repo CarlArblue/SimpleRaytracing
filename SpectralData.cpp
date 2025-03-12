@@ -15,27 +15,37 @@ Spectrum::Spectrum(float value) {
 }
 
 // Approximate RGB to spectrum conversion
-// Note: A more accurate implementation would use pre-computed color matching functions
 Spectrum Spectrum::fromRGB(const glm::vec3& rgb) {
     Spectrum result;
 
-    // Very simplified conversion - in a real renderer you would use
-    // more sophisticated methods based on color science
+    // More accurate RGB to spectral conversion
     for (int i = 0; i < SPECTRAL_SAMPLES; i++) {
         float wavelength = MIN_WAVELENGTH + (MAX_WAVELENGTH - MIN_WAVELENGTH) *
                           (static_cast<float>(i) / (SPECTRAL_SAMPLES - 1));
 
-        // Simple RGB to spectrum mapping
-        if (wavelength < 490.0f) {
-            // Blue-dominant region
-            result.samples[i] = 0.2f * rgb.r + 0.3f * rgb.g + 0.5f * rgb.b;
-        } else if (wavelength < 580.0f) {
-            // Green-dominant region
-            result.samples[i] = 0.2f * rgb.r + 0.6f * rgb.g + 0.2f * rgb.b;
-        } else {
-            // Red-dominant region
-            result.samples[i] = 0.6f * rgb.r + 0.3f * rgb.g + 0.1f * rgb.b;
+        // Initialize sample to zero
+        result.samples[i] = 0.0f;
+
+        // Red component contribution (peaks around 650nm)
+        if (rgb.r > 0.0f) {
+            float redResponse = std::max(0.0f, 1.0f - std::abs((wavelength - 650.0f) / 100.0f));
+            result.samples[i] += rgb.r * redResponse;
         }
+
+        // Green component contribution (peaks around 550nm)
+        if (rgb.g > 0.0f) {
+            float greenResponse = std::max(0.0f, 1.0f - std::abs((wavelength - 550.0f) / 80.0f));
+            result.samples[i] += rgb.g * greenResponse;
+        }
+
+        // Blue component contribution (peaks around 450nm)
+        if (rgb.b > 0.0f) {
+            float blueResponse = std::max(0.0f, 1.0f - std::abs((wavelength - 450.0f) / 80.0f));
+            result.samples[i] += rgb.b * blueResponse;
+        }
+
+        // Normalize to prevent over-bright samples
+        result.samples[i] = std::min(1.0f, result.samples[i]);
     }
 
     return result;
