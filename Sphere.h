@@ -8,18 +8,18 @@
 
 #include <glm/glm.hpp>
 #include "Entity.h"
+#include "SpectralData.h"
 
 // Sphere class representing a 3D sphere.
 class Sphere : public Entity {
 public:
     glm::vec3 center;
     float radius;
-    glm::vec3 color;
+    Spectrum color;  // Changed from glm::vec3 to Spectrum
 
     Sphere();
-    Sphere(const glm::vec3& center, float radius, const glm::vec3& color);
+    Sphere(const glm::vec3& center, float radius, const Spectrum& color);
 
-    // Override intersect to fill HitRecord.
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
 };
 

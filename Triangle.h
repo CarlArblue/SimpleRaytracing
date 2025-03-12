@@ -8,17 +8,17 @@
 
 #include <glm/glm.hpp>
 #include "Entity.h"
+#include "SpectralData.h"
 
 // Triangle class representing a triangle in 3D space.
 class Triangle : public Entity {
 public:
     glm::vec3 v0, v1, v2;
-    glm::vec3 color;
+    Spectrum color;  // Changed from glm::vec3 to Spectrum
 
     Triangle();
-    Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &color);
+    Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color);
 
-    // Override intersect to fill HitRecord.
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
 };
 

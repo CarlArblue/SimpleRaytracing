@@ -8,12 +8,13 @@
 #include <cmath>
 
 Triangle::Triangle()
-    : v0(0.0f), v1(0.0f), v2(0.0f), color(1.0f, 1.0f, 1.0f) {}
+    : v0(0.0f), v1(0.0f), v2(0.0f), color(1.0f) {} // Use Spectrum(1.0f)
 
-Triangle::Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &color)
+Triangle::Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color)
     : v0(v0), v1(v1), v2(v2), color(color) {}
 
 bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const {
+    // Existing implementation is fine
     const float EPSILON = 1e-8f;
     glm::vec3 edge1 = v1 - v0;
     glm::vec3 edge2 = v2 - v0;
@@ -39,7 +40,6 @@ bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecor
 
     rec.t = t;
     rec.hitPoint = origin + dir * t;
-    // Calculate triangle's normal (assuming vertices are defined in counterclockwise order)
     rec.normal = glm::normalize(glm::cross(edge1, edge2));
     rec.color = color;
     return true;

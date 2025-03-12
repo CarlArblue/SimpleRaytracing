@@ -3,6 +3,7 @@
 //
 
 // Renderer.cpp
+#include "SpectralData.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "SamplingHelpers.h"
@@ -17,7 +18,11 @@ static const int maxDepth = 1;            // Reflection recursion depth.
 static const float shadowBias = 1e-4f;      // To avoid self-intersection.
 static const glm::vec3 backgroundColor(0.2f, 0.7f, 0.8f); // Background color.
 
-glm::vec3 traceRay(const glm::vec3& rayOrigin,
+// Change the background color to a spectrum
+static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.2f, 0.7f, 0.8f));
+
+// Update the traceRay function to use Spectrum
+Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
                    const glm::vec3& rayDir,
                    int depth,
                    const Scene& scene,
@@ -38,7 +43,7 @@ glm::vec3 traceRay(const glm::vec3& rayOrigin,
     }
 
     if (!hitSomething)
-        return backgroundColor;
+        return backgroundSpectrum;
 
     // Direct illumination using a fixed light direction.
     float diffuse = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
@@ -56,18 +61,19 @@ glm::vec3 traceRay(const glm::vec3& rayOrigin,
     if (inShadow)
         diffuse *= 0.3f;  // Darken if in shadow.
 
-    glm::vec3 localColor = closestHit.color * diffuse;
+    Spectrum localColor = closestHit.color * diffuse;
 
     // Monte Carlo diffuse bounce: randomly sample a direction in the hemisphere.
     if (depth < maxDepth) {
         glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
         glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
-        glm::vec3 indirect = traceRay(newOrigin, randomDir, depth + 1, scene, lightDir);
+        Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene, lightDir);
         localColor += indirect * 0.5f;  // Weight the contribution.
     }
     return localColor;
 }
 
+// Update renderImage to use spectral rendering
 void Renderer::renderImage(uint32_t* pixels,
                            const Scene& scene,
                            const glm::vec3& camPos,
@@ -82,7 +88,7 @@ void Renderer::renderImage(uint32_t* pixels,
     const int samplesPerPixel = 16; // Increase for less noise.
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
-            glm::vec3 pixelColor(0.0f);
+            Spectrum pixelSpectrum;
             // Average multiple samples.
             for (int s = 0; s < samplesPerPixel; s++) {
                 // Jitter the ray within the pixel.
@@ -91,14 +97,18 @@ void Renderer::renderImage(uint32_t* pixels,
                 float imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
                 float imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
                 glm::vec3 rayDir = glm::normalize(forward + right * imageX + up * imageY);
-                pixelColor += traceRay(camPos, rayDir, 0, scene, lightDir);
+                pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene, lightDir);
             }
-            pixelColor /= static_cast<float>(samplesPerPixel);
+            pixelSpectrum *= (1.0f / samplesPerPixel);
+
+            // Convert spectrum to RGB for display
+            glm::vec3 rgbColor = pixelSpectrum.toRGB();
+
             // Pack the color into a pixel (assuming ARGB format).
             pixels[y * WIDTH + x] = (255 << 24) |
-                                    (static_cast<int>(glm::clamp(pixelColor.r, 0.0f, 1.0f) * 255) << 16) |
-                                    (static_cast<int>(glm::clamp(pixelColor.g, 0.0f, 1.0f) * 255) << 8) |
-                                    static_cast<int>(glm::clamp(pixelColor.b, 0.0f, 1.0f) * 255);
+                                    (static_cast<int>(glm::clamp(rgbColor.r, 0.0f, 1.0f) * 255) << 16) |
+                                    (static_cast<int>(glm::clamp(rgbColor.g, 0.0f, 1.0f) * 255) << 8) |
+                                    static_cast<int>(glm::clamp(rgbColor.b, 0.0f, 1.0f) * 255);
         }
     }
 }

@@ -84,6 +84,13 @@ build CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o: CXX_COMPILER__Simpl
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
 
+build CMakeFiles/SimpleRaytracing.dir/SpectralData.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/SpectralData.cpp || cmake_object_order_depends_target_SimpleRaytracing
+  DEP_FILE = CMakeFiles/SimpleRaytracing.dir/SpectralData.cpp.o.d
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
+  INCLUDES = -isystem /usr/include/SDL2
+  OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
+  OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target SimpleRaytracing
@@ -92,7 +99,7 @@ build CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o: CXX_COMPILER__Simpl
 #############################################
 # Link the executable SimpleRaytracing
 
-build SimpleRaytracing: CXX_EXECUTABLE_LINKER__SimpleRaytracing_Release CMakeFiles/SimpleRaytracing.dir/main.cpp.o CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so /usr/lib/x86_64-linux-gnu/libvulkan.so
+build SimpleRaytracing: CXX_EXECUTABLE_LINKER__SimpleRaytracing_Release CMakeFiles/SimpleRaytracing.dir/main.cpp.o CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o CMakeFiles/SimpleRaytracing.dir/SpectralData.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so /usr/lib/x86_64-linux-gnu/libvulkan.so
   FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG
   LINK_LIBRARIES = /usr/lib/x86_64-linux-gnu/libSDL2.so  /usr/lib/x86_64-linux-gnu/libvulkan.so
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir

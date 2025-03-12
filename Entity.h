@@ -6,14 +6,14 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#include "SpectralData.h"
 #include <glm/glm.hpp>
 
-// Structure to store intersection details.
 struct HitRecord {
     float t = 0.0f;
     glm::vec3 hitPoint;
     glm::vec3 normal;
-    glm::vec3 color;
+    Spectrum color; // Changed from glm::vec3 to Spectrum
 };
 
 // Abstract base class for all scene entities.

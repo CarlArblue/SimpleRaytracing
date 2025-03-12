@@ -9,6 +9,7 @@
 #include "Triangle.h"
 #include "Scene.h"
 #include "Renderer.h"
+#include "SpectralData.h"
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -30,16 +31,21 @@ int main() {
     SDL_Surface* surface = SDL_GetWindowSurface(window);
     std::vector<uint32_t> pixels(Renderer::WIDTH * Renderer::HEIGHT);
 
-    // Create a scene and dynamically add entities.
+    // Create a scene with spectral entities
     Scene scene;
-    scene.addEntity(std::make_shared<Sphere>(glm::vec3(0.0f, 0.0f, -5.0f),
-                                               1.0f,
-                                               glm::vec3(1.0f, 0.0f, 0.0f)));  // Red sphere.
+    // Red sphere
+    scene.addEntity(std::make_shared<Sphere>(
+        glm::vec3(0.0f, 0.0f, -5.0f),
+        1.0f,
+        Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f))  // Use fromRGB
+    ));
+
+    // Green triangle
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(-2.0f, -1.0f, -4.0f),  // v0
         glm::vec3( 2.0f, -1.0f, -4.0f),  // v1
         glm::vec3( 0.0f, -1.0f, -8.0f),  // v2
-        glm::vec3(0.0f, 1.0f, 0.0f)       // Green triangle.
+        Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f))  // Use fromRGB
     ));
     // You can add more entities dynamically here.
 

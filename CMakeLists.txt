@@ -24,6 +24,7 @@ set(SOURCES
         Sphere.cpp
         Renderer.cpp
         SamplingHelpers.cpp
+        SpectralData.cpp
 )
 
 # Create the executable

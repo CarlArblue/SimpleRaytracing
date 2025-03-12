@@ -7,12 +7,13 @@
 #include <cmath>
 
 Sphere::Sphere()
-    : center(0.0f, 0.0f, 0.0f), radius(1.0f), color(1.0f, 1.0f, 1.0f) {}
+    : center(0.0f, 0.0f, 0.0f), radius(1.0f), color(1.0f) {} // Use Spectrum(1.0f)
 
-Sphere::Sphere(const glm::vec3& center, float radius, const glm::vec3& color)
+Sphere::Sphere(const glm::vec3& center, float radius, const Spectrum& color)
     : center(center), radius(radius), color(color) {}
 
 bool Sphere::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const {
+    // Existing implementation is fine
     glm::vec3 oc = origin - center;
     float b = 2.0f * glm::dot(oc, dir);
     float c = glm::dot(oc, oc) - radius * radius;
