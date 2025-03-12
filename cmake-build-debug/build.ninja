@@ -12,7 +12,7 @@
 
 # =============================================================================
 # Project: SimpleRaytracing
-# Configurations: Debug
+# Configurations: Release
 # =============================================================================
 
 #############################################
@@ -24,7 +24,7 @@ ninja_required_version = 1.5
 #############################################
 # Set configuration variable for custom commands.
 
-CONFIGURATION = Debug
+CONFIGURATION = Release
 # =============================================================================
 # Include auxiliary files.
 
@@ -49,37 +49,37 @@ cmake_ninja_workdir = /home/alex/CLionProjects/SimpleRaytracing/cmake-build-debu
 
 build cmake_object_order_depends_target_SimpleRaytracing: phony || .
 
-build CMakeFiles/SimpleRaytracing.dir/main.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Debug /home/alex/CLionProjects/SimpleRaytracing/main.cpp || cmake_object_order_depends_target_SimpleRaytracing
+build CMakeFiles/SimpleRaytracing.dir/main.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/main.cpp || cmake_object_order_depends_target_SimpleRaytracing
   DEP_FILE = CMakeFiles/SimpleRaytracing.dir/main.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -isystem /usr/include/SDL2
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
 
-build CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Debug /home/alex/CLionProjects/SimpleRaytracing/Triangle.cpp || cmake_object_order_depends_target_SimpleRaytracing
+build CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/Triangle.cpp || cmake_object_order_depends_target_SimpleRaytracing
   DEP_FILE = CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -isystem /usr/include/SDL2
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
 
-build CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Debug /home/alex/CLionProjects/SimpleRaytracing/Sphere.cpp || cmake_object_order_depends_target_SimpleRaytracing
+build CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/Sphere.cpp || cmake_object_order_depends_target_SimpleRaytracing
   DEP_FILE = CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -isystem /usr/include/SDL2
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
 
-build CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Debug /home/alex/CLionProjects/SimpleRaytracing/Renderer.cpp || cmake_object_order_depends_target_SimpleRaytracing
+build CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/Renderer.cpp || cmake_object_order_depends_target_SimpleRaytracing
   DEP_FILE = CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -isystem /usr/include/SDL2
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
 
-build CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Debug /home/alex/CLionProjects/SimpleRaytracing/SamplingHelpers.cpp || cmake_object_order_depends_target_SimpleRaytracing
+build CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o: CXX_COMPILER__SimpleRaytracing_unscanned_Release /home/alex/CLionProjects/SimpleRaytracing/SamplingHelpers.cpp || cmake_object_order_depends_target_SimpleRaytracing
   DEP_FILE = CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -isystem /usr/include/SDL2
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   OBJECT_FILE_DIR = CMakeFiles/SimpleRaytracing.dir
@@ -92,9 +92,9 @@ build CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o: CXX_COMPILER__Simpl
 #############################################
 # Link the executable SimpleRaytracing
 
-build SimpleRaytracing: CXX_EXECUTABLE_LINKER__SimpleRaytracing_Debug CMakeFiles/SimpleRaytracing.dir/main.cpp.o CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so
-  FLAGS = -g
-  LINK_LIBRARIES = /usr/lib/x86_64-linux-gnu/libSDL2.so
+build SimpleRaytracing: CXX_EXECUTABLE_LINKER__SimpleRaytracing_Release CMakeFiles/SimpleRaytracing.dir/main.cpp.o CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o | /usr/lib/x86_64-linux-gnu/libSDL2.so /usr/lib/x86_64-linux-gnu/libvulkan.so
+  FLAGS = -O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG
+  LINK_LIBRARIES = /usr/lib/x86_64-linux-gnu/libSDL2.so  /usr/lib/x86_64-linux-gnu/libvulkan.so
   OBJECT_DIR = CMakeFiles/SimpleRaytracing.dir
   POST_BUILD = :
   PRE_LINK = :

@@ -2,6 +2,7 @@
 // Created by alex on 3/10/25.
 //
 
+#include <cmath>
 #include <random>
 #include <glm/glm.hpp>
 #include "SamplingHelpers.h"
