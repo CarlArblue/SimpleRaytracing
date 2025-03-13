@@ -14,7 +14,7 @@
 class Triangle : public Entity {
 public:
     glm::vec3 v0, v1, v2;
-    Spectrum color;  // Changed from glm::vec3 to Spectrum
+    Spectrum color;
 
     Triangle();
     Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color);

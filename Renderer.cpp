@@ -13,15 +13,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <limits>
-#include <tbb/parallel_for.h>
-#include <tbb/blocked_range2d.h>
 
 // In Renderer.cpp, modify the traceRaySpectral function to handle emissive surfaces:
 Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
                    const glm::vec3& rayDir,
                    int depth,
-                   const Scene& scene,
-                   const glm::vec3& lightDir) {
+                   const Scene& scene) {
     HitRecord closestHit;
     closestHit.t = std::numeric_limits<float>::infinity();
     bool hitSomething = false;
@@ -40,39 +37,50 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     if (!hitSomething)
         return backgroundSpectrum;
 
-    // Check if this is an emissive surface (light source)
-    // We can determine this by checking if the color is very bright
-    glm::vec3 colorRGB = closestHit.color.toRGB();
-    if (colorRGB.r > 1.0f || colorRGB.g > 1.0f || colorRGB.b > 1.0f) {
-        // This is a light source, return its color directly
-        return closestHit.color;
+    // If we hit an emissive surface, return its emission
+    if (closestHit.isEmissive) {
+        return closestHit.emission;
     }
 
-    // Direct illumination using a fixed light direction.
-    float diffuse = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
+    // Start with ambient light
+    Spectrum localColor = closestHit.color * Spectrum(0.1f);  // Ambient term
 
-    // Shadow check.
-    glm::vec3 shadowOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
-    bool inShadow = false;
-    for (const auto& entity : scene.entities) {
-        HitRecord shadowRec;
-        if (entity->intersect(shadowOrigin, lightDir, shadowRec)) {
-            inShadow = true;
-            break;
+    // Add contribution from each light
+    for (const auto& light : scene.lights) {
+        glm::vec3 lightDir;
+        float distance;
+        float pdf;
+
+        // Sample a direction to the light
+        light->sample(closestHit.hitPoint, lightDir, distance, pdf);
+
+        // Shadow check
+        glm::vec3 shadowOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
+        bool inShadow = false;
+        for (const auto& entity : scene.entities) {
+            HitRecord shadowRec;
+            if (entity->intersect(shadowOrigin, lightDir, shadowRec) && shadowRec.t < distance) {
+                inShadow = true;
+                break;
+            }
+        }
+
+        if (!inShadow) {
+            float cosTheta = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
+            // Add distance attenuation
+            float distanceSquared = distance * distance;
+            localColor += closestHit.color * light->intensity * cosTheta / (pdf * distanceSquared);
         }
     }
-    if (inShadow)
-        diffuse *= 0.3f;
-
-    Spectrum localColor = closestHit.color * lightSpectrum * diffuse;
 
     // Monte Carlo diffuse bounce
     if (depth < maxDepth) {
         glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
         glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
-        Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene, lightDir);
+        Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene);
         localColor += indirect * closestHit.color * 0.5f;  // Weight the contribution
     }
+
     return localColor;
 }
 
@@ -97,7 +105,7 @@ void Renderer::renderImage(uint32_t* pixels,
                     float imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
                     float imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
                     glm::vec3 rayDir = glm::normalize(forward + right * imageX + up * imageY);
-                    pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene, lightDir);
+                    pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene);
                 }
                 pixelSpectrum *= (1.0f / samplesPerPixel);
 

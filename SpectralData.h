@@ -36,6 +36,8 @@ public:
     Spectrum operator*(float scalar) const;
     Spectrum& operator+=(const Spectrum& other);
     Spectrum& operator*=(float scalar);
+    Spectrum operator/(float scalar) const;
+    Spectrum& operator/=(float scalar);
 };
 
 #endif // SPECTRALDATA_H

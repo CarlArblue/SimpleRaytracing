@@ -121,3 +121,18 @@ Spectrum& Spectrum::operator*=(float scalar) {
     }
     return *this;
 }
+
+Spectrum Spectrum::operator/(float scalar) const {
+    Spectrum result;
+    for (int i = 0; i < SPECTRAL_SAMPLES; i++) {
+        result.samples[i] = samples[i] / scalar;
+    }
+    return result;
+}
+
+Spectrum& Spectrum::operator/=(float scalar) {
+    for (int i = 0; i < SPECTRAL_SAMPLES; i++) {
+        samples[i] /= scalar;
+    }
+    return *this;
+}

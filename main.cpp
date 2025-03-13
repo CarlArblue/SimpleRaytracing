@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Sphere.h"
@@ -89,21 +88,25 @@ Scene createCornellBox() {
         Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f))
     ));
 
-    // Light source (bright white/yellow)
+    // Light source (bright white/yellow) - now using the emissive triangle method
     float lightSize = 3.0f;
     float lightY = halfSize - 0.1f;  // Slightly below ceiling
-    scene.addEntity(std::make_shared<Triangle>(
+
+    scene.addEmissiveTriangle(
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
-        Spectrum::fromRGB(glm::vec3(10.0f, 10.0f, 8.0f))  // Bright emission
-    ));
-    scene.addEntity(std::make_shared<Triangle>(
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),  // Surface color
+        Spectrum::fromRGB(glm::vec3(0.1f, 0.1f, 0.1f))  // Emission
+    );
+
+    scene.addEmissiveTriangle(
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
-        Spectrum::fromRGB(glm::vec3(10.0f, 10.0f, 8.0f))  // Bright emission
-    ));
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),  // Surface color
+        Spectrum::fromRGB(glm::vec3(0.1f, 0.1f, 0.1f))  // Emission
+    );
 
     // Left box (tall)
     float tallBoxSize = 3.0f;
