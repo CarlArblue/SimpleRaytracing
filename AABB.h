@@ -22,17 +22,27 @@ public:
         tMin = -INFINITY;
         tMax = INFINITY;
 
+        // Check for division by zero - important!
         for (int i = 0; i < 3; i++) {
-            float invD = 1.0f / dir[i];
-            float t0 = (min[i] - origin[i]) * invD;
-            float t1 = (max[i] - origin[i]) * invD;
+            if (std::abs(dir[i]) < 1e-8) {
+                // Ray is parallel to this slab, check if origin is within bounds
+                if (origin[i] < min[i] || origin[i] > max[i])
+                    return false;
+            } else {
+                float invD = 1.0f / dir[i];
+                float t0 = (min[i] - origin[i]) * invD;
+                float t1 = (max[i] - origin[i]) * invD;
 
-            if (invD < 0.0f) std::swap(t0, t1);
+                // Swap if necessary
+                if (invD < 0.0f) std::swap(t0, t1);
 
-            tMin = std::max(t0, tMin);
-            tMax = std::min(t1, tMax);
+                // Update interval
+                tMin = std::max(t0, tMin);
+                tMax = std::min(t1, tMax);
 
-            if (tMax < tMin) return false;
+                // Early termination
+                if (tMax < tMin) return false;
+            }
         }
 
         return true;

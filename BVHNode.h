@@ -21,26 +21,21 @@ public:
     // Constructors
     BVHNode() {}
 
+    // Modified BVHNode constructor
     BVHNode(const std::vector<std::shared_ptr<Entity>>& entities, size_t start, size_t end) {
-        // Random axis - can be refined later
         int axis = rand() % 3;
 
-        // Sort the entities based on their position along the chosen axis
         auto comparator = [axis](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
             AABB boxA = a->getBounds();
             AABB boxB = b->getBounds();
-
-            // Compare centers of bounding boxes
             return (boxA.min[axis] + boxA.max[axis]) < (boxB.min[axis] + boxB.max[axis]);
         };
 
         size_t objectSpan = end - start;
 
         if (objectSpan == 1) {
-            // Only one entity, make it both children (a leaf node)
             left = right = entities[start];
         } else if (objectSpan == 2) {
-            // Two entities, sort them
             if (comparator(entities[start], entities[start+1])) {
                 left = entities[start];
                 right = entities[start+1];
@@ -49,11 +44,16 @@ public:
                 right = entities[start];
             }
         } else {
-            // More than two objects, sort and split
-            std::vector<std::shared_ptr<Entity>> sortedEntities(entities.begin() + start, entities.begin() + end);
+            // Create a mutable copy we can sort
+            std::vector<std::shared_ptr<Entity>> sortedEntities;
+            sortedEntities.reserve(objectSpan);
+            for (size_t i = start; i < end; i++) {
+                sortedEntities.push_back(entities[i]);
+            }
             std::sort(sortedEntities.begin(), sortedEntities.end(), comparator);
 
             size_t mid = objectSpan / 2;
+            // Now use the sorted vector with proper indices
             left = std::make_shared<BVHNode>(sortedEntities, 0, mid);
             right = std::make_shared<BVHNode>(sortedEntities, mid, objectSpan);
         }
@@ -66,18 +66,27 @@ public:
     // Build from a vector of entities
     BVHNode(std::vector<std::shared_ptr<Entity>> entities) : BVHNode(entities, 0, entities.size()) {}
 
-    // Implement Entity interface
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override {
         float tMin, tMax;
         if (!box.intersect(origin, dir, tMin, tMax))
             return false;
 
+        // If we're completely outside the box, no intersection
+        if (tMax <= 0)
+            return false;
+
+        // Start with left child
         bool hitLeft = left->intersect(origin, dir, rec);
+
+        // Create temporary record for right child
         HitRecord rightRec;
         bool hitRight = right->intersect(origin, dir, rightRec);
 
+        // Use the closer intersection if both children were hit
         if (hitLeft && hitRight) {
-            if (rightRec.t < rec.t) rec = rightRec;
+            if (rightRec.t < rec.t) {
+                rec = rightRec;
+            }
             return true;
         }
 
