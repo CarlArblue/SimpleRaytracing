@@ -46,7 +46,7 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     Spectrum localColor = closestHit.color * Spectrum(0.1f);  // Ambient term
 
     // Add contribution from each light
-    for (const auto& light : scene.lights) {
+    for (const auto& light : scene.entities) {
         glm::vec3 lightDir;
         float distance;
         float pdf;

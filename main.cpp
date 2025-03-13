@@ -4,8 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Sphere.h"
-#include "Triangle.h"
+#include "Entity.h"
 #include "Scene.h"
 #include "Renderer.h"
 #include "SpectralData.h"
@@ -23,13 +22,15 @@ Scene createCornellBox() {
         glm::vec3(-halfSize, -halfSize, -halfSize - roomSize),  // back left
         glm::vec3(halfSize, -halfSize, -halfSize - roomSize),   // back right
         glm::vec3(-halfSize, -halfSize, -halfSize),             // front left
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(halfSize, -halfSize, -halfSize - roomSize),   // back right
         glm::vec3(halfSize, -halfSize, -halfSize),              // front right
         glm::vec3(-halfSize, -halfSize, -halfSize),             // front left
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
 
     // Ceiling (white)
@@ -37,13 +38,15 @@ Scene createCornellBox() {
         glm::vec3(-halfSize, halfSize, -halfSize - roomSize),   // back left
         glm::vec3(-halfSize, halfSize, -halfSize),              // front left
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // back right
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // back right
         glm::vec3(-halfSize, halfSize, -halfSize),              // front left
         glm::vec3(halfSize, halfSize, -halfSize),               // front right
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
 
     // Back wall (white)
@@ -51,13 +54,15 @@ Scene createCornellBox() {
         glm::vec3(-halfSize, -halfSize, -halfSize - roomSize),  // bottom left
         glm::vec3(-halfSize, halfSize, -halfSize - roomSize),   // top left
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // top right
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(-halfSize, -halfSize, -halfSize - roomSize),  // bottom left
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // top right
         glm::vec3(halfSize, -halfSize, -halfSize - roomSize),   // bottom right
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f))
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(0.0f)
     ));
 
     // Left wall (red)
@@ -65,13 +70,15 @@ Scene createCornellBox() {
         glm::vec3(-halfSize, -halfSize, -halfSize),             // front bottom
         glm::vec3(-halfSize, halfSize, -halfSize),              // front top
         glm::vec3(-halfSize, halfSize, -halfSize - roomSize),   // back top
-        Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f))
+        Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f)),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(-halfSize, -halfSize, -halfSize),             // front bottom
         glm::vec3(-halfSize, halfSize, -halfSize - roomSize),   // back top
         glm::vec3(-halfSize, -halfSize, -halfSize - roomSize),  // back bottom
-        Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f))
+        Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f)),
+        Spectrum(0.0f)
     ));
 
     // Right wall (green)
@@ -79,34 +86,36 @@ Scene createCornellBox() {
         glm::vec3(halfSize, -halfSize, -halfSize),              // front bottom
         glm::vec3(halfSize, -halfSize, -halfSize - roomSize),   // back bottom
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // back top
-        Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f))
+        Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f)),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(halfSize, -halfSize, -halfSize),              // front bottom
         glm::vec3(halfSize, halfSize, -halfSize - roomSize),    // back top
         glm::vec3(halfSize, halfSize, -halfSize),               // front top
-        Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f))
+        Spectrum::fromRGB(glm::vec3(0.0f, 1.0f, 0.0f)),
+        Spectrum(0.0f)
     ));
 
     // Light source (bright white/yellow) - now using the emissive triangle method
     float lightSize = 3.0f;
     float lightY = halfSize - 0.1f;  // Slightly below ceiling
 
-    scene.addEmissiveTriangle(
+    scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),  // Surface color
-        Spectrum::fromRGB(glm::vec3(0.1f, 0.1f, 0.1f))  // Emission
-    );
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(1.0f)
+    ));
 
-    scene.addEmissiveTriangle(
+    scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
-        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),  // Surface color
-        Spectrum::fromRGB(glm::vec3(0.1f, 0.1f, 0.1f))  // Emission
-    );
+        Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
+        Spectrum(1.0f)
+    ));
 
     // Left box (tall)
     float tallBoxSize = 3.0f;
@@ -124,13 +133,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Tall box - Top face
@@ -138,13 +149,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMax.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMin.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMax.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Tall box - Front face
@@ -152,13 +165,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Tall box - Back face
@@ -166,13 +181,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMin.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMin.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Tall box - Left face
@@ -180,13 +197,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMin.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMin.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMax.z),
         glm::vec3(tallBoxMin.x, tallBoxMax.y, tallBoxMin.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Tall box - Right face
@@ -194,13 +213,15 @@ Scene createCornellBox() {
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(tallBoxMax.x, tallBoxMin.y, tallBoxMax.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMin.z),
         glm::vec3(tallBoxMax.x, tallBoxMax.y, tallBoxMax.z),
-        Spectrum::fromRGB(tallBoxColor)
+        Spectrum::fromRGB(tallBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box (shorter cube)
@@ -219,13 +240,15 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box - Top face
@@ -233,13 +256,15 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMax.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMin.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMax.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box - Front face
@@ -247,14 +272,16 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     // Short box - Front face (continued)
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box - Back face
@@ -262,13 +289,15 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMin.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMin.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box - Left face
@@ -276,13 +305,15 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMin.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMin.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMax.z),
         glm::vec3(shortBoxMin.x, shortBoxMax.y, shortBoxMin.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     // Short box - Right face
@@ -290,13 +321,15 @@ Scene createCornellBox() {
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
     scene.addEntity(std::make_shared<Triangle>(
         glm::vec3(shortBoxMax.x, shortBoxMin.y, shortBoxMax.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMin.z),
         glm::vec3(shortBoxMax.x, shortBoxMax.y, shortBoxMax.z),
-        Spectrum::fromRGB(shortBoxColor)
+        Spectrum::fromRGB(shortBoxColor),
+        Spectrum(0.0f)
     ));
 
     return scene;

@@ -3,14 +3,8 @@
 //
 
 // Sphere.cpp
-#include "Sphere.h"
+#include "Entity.h"
 #include <cmath>
-
-Sphere::Sphere()
-    : center(0.0f, 0.0f, 0.0f), radius(1.0f), color(1.0f) {} // Use Spectrum(1.0f)
-
-Sphere::Sphere(const glm::vec3& center, float radius, const Spectrum& color)
-    : center(center), radius(radius), color(color) {}
 
 bool Sphere::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const {
     // Existing implementation is fine
@@ -37,5 +31,7 @@ bool Sphere::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord&
     rec.hitPoint = origin + dir * t;
     rec.normal = glm::normalize(rec.hitPoint - center);
     rec.color = color;
+    rec.emission = emission;
+    rec.isEmissive = isEmissive();
     return true;
 }

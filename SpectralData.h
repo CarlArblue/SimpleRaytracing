@@ -38,6 +38,7 @@ public:
     Spectrum& operator*=(float scalar);
     Spectrum operator/(float scalar) const;
     Spectrum& operator/=(float scalar);
+    bool operator>(float scalar) const;
 };
 
 #endif // SPECTRALDATA_H

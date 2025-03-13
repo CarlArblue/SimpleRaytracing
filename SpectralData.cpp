@@ -136,3 +136,11 @@ Spectrum& Spectrum::operator/=(float scalar) {
     }
     return *this;
 }
+
+bool Spectrum::operator>(float scalar) const {
+    for (int i = 0; i < SPECTRAL_SAMPLES; i++) {
+        if (samples[i] > scalar)
+            return true;
+    }
+    return false;
+}

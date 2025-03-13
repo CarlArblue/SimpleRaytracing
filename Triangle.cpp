@@ -3,15 +3,9 @@
 //
 
 // Triangle.cpp
-#include "Triangle.h"
+#include "Entity.h"
 #include <glm/glm.hpp>
 #include <cmath>
-
-Triangle::Triangle()
-    : v0(0.0f), v1(0.0f), v2(0.0f), color(1.0f) {} // Use Spectrum(1.0f)
-
-Triangle::Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color)
-    : v0(v0), v1(v1), v2(v2), color(color) {}
 
 bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const {
     // Existing implementation is fine
@@ -47,6 +41,8 @@ bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecor
     }
     rec.normal = normal;
     rec.color = color;
+    rec.emission = emission;
+    rec.isEmissive = isEmissive();
     return true;
 }
 

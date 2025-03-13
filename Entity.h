@@ -14,8 +14,8 @@ struct HitRecord {
     glm::vec3 hitPoint;
     glm::vec3 normal;
     Spectrum color;
-    Spectrum emission;  // Add emission property
-    bool isEmissive = false;  // Flag to quickly check emissive surfaces
+    Spectrum emission;
+    bool isEmissive = false;
 };
 
 // Abstract base class for all scene entities.
@@ -36,6 +36,56 @@ public:
     // Add emissive check
     virtual bool isEmissive() const {
         return false;  // Default is non-emissive
+    }
+
+};
+
+// Triangle class representing a triangle in 3D space.
+class Triangle : public Entity {
+public:
+    glm::vec3 v0, v1, v2;
+    Spectrum color;
+    Spectrum emission;
+
+    Triangle()
+        : v0(0.0f), v1(0.0f), v2(0.0f), color(1.0f), emission(0.0f) {}
+
+    Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color, const Spectrum &emission)
+        : v0(v0), v1(v1), v2(v2), color(color), emission(emission) {}
+
+    bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
+
+    Spectrum getEmission() const override {
+        return emission;
+    }
+
+    bool isEmissive() const override {
+        return emission > 0.0f;
+    }
+};
+
+// Sphere class representing a 3D sphere.
+class Sphere : public Entity {
+public:
+    glm::vec3 center;
+    float radius;
+    Spectrum color;
+    Spectrum emission;
+
+    Sphere()
+    : center(0.0f, 0.0f, 0.0f), radius(1.0f), color(1.0f), emission(0.0f) {}
+
+    Sphere(const glm::vec3& center, float radius, const Spectrum& color)
+        : center(center), radius(radius), color(color), emission(emission) {}
+
+    bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
+
+    Spectrum getEmission() const override {
+        return emission;
+    }
+
+    bool isEmissive() const override {
+        return emission > 0.0f;
     }
 
 };
