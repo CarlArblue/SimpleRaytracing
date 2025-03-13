@@ -106,7 +106,7 @@ Scene createCornellBox() {
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
-        Spectrum(1.0f)
+        Spectrum(10.0f)
     ));
 
     scene.addEntity(std::make_shared<Triangle>(
@@ -114,7 +114,7 @@ Scene createCornellBox() {
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
-        Spectrum(1.0f)
+        Spectrum(10.0f)
     ));
 
     // Left box (tall)

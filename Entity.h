@@ -38,6 +38,12 @@ public:
         return false;  // Default is non-emissive
     }
 
+    // New method for emissive entities
+    virtual void sampleLight(const glm::vec3& refPoint, glm::vec3& samplePoint, glm::vec3& lightNormal, float& pdf) const {
+        // Default: do nothing if not emissive.
+        pdf = 0.0f;
+    }
+
 };
 
 // Triangle class representing a triangle in 3D space.
@@ -62,6 +68,9 @@ public:
     bool isEmissive() const override {
         return emission > 0.0f;
     }
+
+    void sampleLight(const glm::vec3& refPoint, glm::vec3& samplePoint, glm::vec3& lightNormal, float& pdf) const override;
+
 };
 
 // Sphere class representing a 3D sphere.

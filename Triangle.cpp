@@ -4,6 +4,7 @@
 
 // Triangle.cpp
 #include "Entity.h"
+#include "SamplingHelpers.h"
 #include <glm/glm.hpp>
 #include <cmath>
 
@@ -44,5 +45,21 @@ bool Triangle::intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecor
     rec.emission = emission;
     rec.isEmissive = isEmissive();
     return true;
+}
+
+void Triangle::sampleLight(const glm::vec3& refPoint, glm::vec3& samplePoint, glm::vec3& lightNormal, float& pdf) const {
+    // Uniformly sample a point on the triangle
+    float r1 = random_float();
+    float r2 = random_float();
+    if (r1 + r2 > 1.0f) { // Ensure uniformity over the triangle
+        r1 = 1.0f - r1;
+        r2 = 1.0f - r2;
+    }
+    samplePoint = v0 + r1 * (v1 - v0) + r2 * (v2 - v0);
+    // The normal of the triangle (assumed constant)
+    lightNormal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+    // PDF is the reciprocal of the triangle’s area:
+    float area = 0.5f * glm::length(glm::cross(v1 - v0, v2 - v0));
+    pdf = 1.0f / area;
 }
 

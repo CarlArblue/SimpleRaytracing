@@ -14,11 +14,10 @@
 #include <glm/glm.hpp>
 #include <limits>
 
-// In Renderer.cpp, modify the traceRaySpectral function to handle emissive surfaces:
 Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
-                   const glm::vec3& rayDir,
-                   int depth,
-                   const Scene& scene) {
+                           const glm::vec3& rayDir,
+                           int depth,
+                           const Scene& scene) {
     HitRecord closestHit;
     closestHit.t = std::numeric_limits<float>::infinity();
     bool hitSomething = false;
@@ -45,40 +44,50 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     // Start with ambient light
     Spectrum localColor = closestHit.color * Spectrum(0.1f);  // Ambient term
 
-    // Add contribution from each light
-    for (const auto& light : scene.entities) {
-        glm::vec3 lightDir;
-        float distance;
+    // Loop through each emissive entity (light) in the scene
+    for (const auto& entity : scene.entities) {
+        if (!entity->isEmissive())
+            continue; // Skip non-emissive objects
+
+        // Sample a point on the emissive entity (the light)
+        glm::vec3 samplePoint, lightNormal;
         float pdf;
+        entity->sampleLight(closestHit.hitPoint, samplePoint, lightNormal, pdf);
 
-        // Sample a direction to the light
-        light->sample(closestHit.hitPoint, lightDir, distance, pdf);
+        // Compute the direction and distance from the hit point to the sampled point
+        glm::vec3 lightDir = samplePoint - closestHit.hitPoint;
+        float distance = glm::length(lightDir);
+        lightDir = glm::normalize(lightDir);
 
-        // Shadow check
+        // Shadow check: cast a ray toward the light sample to see if it is occluded.
         glm::vec3 shadowOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
         bool inShadow = false;
-        for (const auto& entity : scene.entities) {
+        for (const auto& other : scene.entities) {
             HitRecord shadowRec;
-            if (entity->intersect(shadowOrigin, lightDir, shadowRec) && shadowRec.t < distance) {
+            if (other->intersect(shadowOrigin, lightDir, shadowRec) && shadowRec.t < distance) {
                 inShadow = true;
                 break;
             }
         }
 
         if (!inShadow) {
+            // Compute cosine factor between surface normal and light direction.
             float cosTheta = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
-            // Add distance attenuation
+            // Distance squared for attenuation.
             float distanceSquared = distance * distance;
-            localColor += closestHit.color * light->intensity * cosTheta / (pdf * distanceSquared);
+            // Use getEmission() to get the light's emission spectrum.
+            Spectrum lightEmission = entity->getEmission();
+            // Accumulate the direct light contribution.
+            localColor += closestHit.color * lightEmission * cosTheta / (pdf * distanceSquared);
         }
     }
 
-    // Monte Carlo diffuse bounce
+    // Monte Carlo diffuse bounce for indirect illumination.
     if (depth < maxDepth) {
         glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
         glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
         Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene);
-        localColor += indirect * closestHit.color * 0.5f;  // Weight the contribution
+        localColor += indirect * closestHit.color * 0.5f;  // Weight the indirect contribution
     }
 
     return localColor;
@@ -93,7 +102,7 @@ void Renderer::renderImage(uint32_t* pixels,
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
 
-        #pragma omp parallel for collapse(2) schedule(dynamic)
+        #pragma omp parallel for collapse(2) schedule(dynamic) // Should use default(none) and specify for best practice
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 Spectrum pixelSpectrum;

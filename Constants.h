@@ -10,8 +10,8 @@
 #include <cmath>
 
 // Ray
-static constexpr int maxDepth = 3;              // Reflection recursion depth.
-static constexpr int samplesPerPixel = 32;      // Increase for less noise.
+static constexpr int maxDepth = 5;              // Reflection recursion depth.
+static constexpr int samplesPerPixel = 64;      // Increase for less noise.
 static constexpr float shadowBias = 1e-4f;      // To avoid self-intersection.
 
 // Scene

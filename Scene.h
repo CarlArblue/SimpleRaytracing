@@ -10,7 +10,6 @@
 #include <vector>
 #include <memory>
 #include "Entity.h"
-#include "Light.h"
 
 class Scene {
 public:
