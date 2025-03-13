@@ -62,12 +62,12 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
         lightDir = glm::normalize(lightDir);
 
         glm::vec3 shadowOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
+
         bool inShadow = false;
-        for (const auto& other : scene.entities) {
+        if (scene.bvh) {
             HitRecord shadowRec;
-            if (other->intersect(shadowOrigin, lightDir, shadowRec) && shadowRec.t < distance) {
+            if (scene.bvh->intersect(shadowOrigin, lightDir, shadowRec) && shadowRec.t < distance) {
                 inShadow = true;
-                break;
             }
         }
 

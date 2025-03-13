@@ -19,7 +19,7 @@ public:
 
     // Check if a ray intersects this AABB
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, float& tMin, float& tMax) const {
-        tMin = -INFINITY;
+        tMin = 0;
         tMax = INFINITY;
 
         // Check for division by zero - important!

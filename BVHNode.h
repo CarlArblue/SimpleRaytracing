@@ -52,10 +52,10 @@ public:
             }
             std::sort(sortedEntities.begin(), sortedEntities.end(), comparator);
 
-            size_t mid = objectSpan / 2;
+            size_t mid = sortedEntities.size() / 2;
             // Now use the sorted vector with proper indices
             left = std::make_shared<BVHNode>(sortedEntities, 0, mid);
-            right = std::make_shared<BVHNode>(sortedEntities, mid, objectSpan);
+            right = std::make_shared<BVHNode>(sortedEntities, mid, sortedEntities.size());
         }
 
         AABB boxLeft = left->getBounds();
@@ -75,14 +75,13 @@ public:
         if (tMax <= 0)
             return false;
 
-        // Start with left child
+        // FIXED: Track the closest hit correctly
         bool hitLeft = left->intersect(origin, dir, rec);
 
-        // Create temporary record for right child
         HitRecord rightRec;
         bool hitRight = right->intersect(origin, dir, rightRec);
 
-        // Use the closer intersection if both children were hit
+        // Use the closer hit
         if (hitLeft && hitRight) {
             if (rightRec.t < rec.t) {
                 rec = rightRec;

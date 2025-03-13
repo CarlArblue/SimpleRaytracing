@@ -19,3 +19,13 @@
 5	1170	1741893246131726291	CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o	77dd83c8ca8f3463
 4	1891	1741893246130726291	CMakeFiles/SimpleRaytracing.dir/main.cpp.o	17115be8201e9cdf
 1891	3565	1741893248017724944	SimpleRaytracing	5a01ce3b3f4fa7ad
+3	924	1741893774561316130	CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o	f3ae711b24c5ee62
+3	928	1741893774561316130	CMakeFiles/SimpleRaytracing.dir/Sphere.cpp.o	658b018e22b513b4
+3	1023	1741893774561316130	CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o	77dd83c8ca8f3463
+2	1823	1741893774560316131	CMakeFiles/SimpleRaytracing.dir/main.cpp.o	17115be8201e9cdf
+1823	3248	1741893776381314638	SimpleRaytracing	5a01ce3b3f4fa7ad
+3	845	1741893994706133173	CMakeFiles/SimpleRaytracing.dir/Renderer.cpp.o	77dd83c8ca8f3463
+3	1687	1741893994706133173	CMakeFiles/SimpleRaytracing.dir/main.cpp.o	17115be8201e9cdf
+1687	3110	1741893996390131758	SimpleRaytracing	5a01ce3b3f4fa7ad
+4	1708	1741894101366043118	CMakeFiles/SimpleRaytracing.dir/main.cpp.o	17115be8201e9cdf
+1708	3381	1741894103070041673	SimpleRaytracing	5a01ce3b3f4fa7ad
