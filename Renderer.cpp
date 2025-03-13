@@ -84,12 +84,17 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
 
         if (bsdf) {
             float bsdfPdf;
-            // Note: Adjust the incoming direction (-rayDir) if needed, depending on your convention.
             glm::vec3 newDir = bsdf->sample(-rayDir, closestHit.normal, bsdfPdf);
             glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
-            Spectrum indirect = traceRaySpectral(newOrigin, newDir, depth + 1, scene);
-            Spectrum bsdfVal = bsdf->evaluate(-rayDir, newDir, closestHit.normal);
-            localColor += indirect * bsdfVal;
+
+            if (bsdfPdf > 0.0f) {
+                Spectrum indirect = traceRaySpectral(newOrigin, newDir, depth + 1, scene);
+                Spectrum bsdfVal = bsdf->evaluate(-rayDir, newDir, closestHit.normal);
+
+                // Apply proper weighting with the PDF
+                float cosTheta = std::max(0.0f, glm::dot(closestHit.normal, newDir));
+                localColor += indirect * bsdfVal * cosTheta / bsdfPdf;
+            }
         } else {
             // Fallback: cosine-weighted hemisphere sampling.
             glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);

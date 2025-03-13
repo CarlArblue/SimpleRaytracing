@@ -66,7 +66,7 @@ public:
         : v0(0.0f), v1(0.0f), v2(0.0f), color(1.0f), emission(0.0f), bsdf(nullptr) {}
 
     Triangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, const Spectrum &color, const Spectrum &emission, BSDF* bsdf = nullptr)
-        : v0(v0), v1(v1), v2(v2), color(color), emission(emission),bsdf(bsdf) {}
+        : v0(v0), v1(v1), v2(v2), color(color), emission(emission), bsdf(bsdf) {}
 
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
 
@@ -98,8 +98,8 @@ public:
     Sphere()
     : center(0.0f, 0.0f, 0.0f), radius(1.0f), color(1.0f), emission(0.0f), bsdf(nullptr) {}
 
-    Sphere(const glm::vec3& center, float radius, const Spectrum& color, BSDF* bsdf = nullptr)
-        : center(center), radius(radius), color(color), emission(emission) {}
+    Sphere(const glm::vec3& center, float radius, const Spectrum& color, const Spectrum& emission, BSDF* bsdf = nullptr)
+        : center(center), radius(radius), color(color), emission(emission), bsdf(bsdf) {}
 
     bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const override;
 

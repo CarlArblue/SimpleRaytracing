@@ -338,9 +338,10 @@ Scene createCornellBox() {
 
      // Then add the sphere to the scene using the BSDF pointer.
      scene.addEntity(std::make_shared<Sphere>(
-         glm::vec3(0, 0, 0),
+         glm::vec3(0.0f, 0.0f, -halfSize - roomSize / 2),
          1.0,
-         Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f)),
+         Spectrum::fromRGB(glm::vec3(251.0f/256.0f, 198.0f/256.0f, 207.0f/256.0f)),
+         Spectrum(0.0f),
          bsdf_lamb
      ));
 
