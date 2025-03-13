@@ -3,6 +3,7 @@
 //
 
 // Renderer.cpp
+#include "Constants.h"
 #include "SpectralData.h"
 #include "Renderer.h"
 #include "Scene.h"
@@ -12,19 +13,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <limits>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range2d.h>
 
-// Global constants.
-static constexpr int maxDepth = 3;              // Reflection recursion depth.
-static constexpr int samplesPerPixel = 16;      // Increase for less noise.
-static constexpr float shadowBias = 1e-4f;      // To avoid self-intersection.
-static const Spectrum backgroundSpectrum = Spectrum::fromRGB(glm::vec3(0.0f, 0.0f, 0.0f)); // Black background
-static const Spectrum lightSpectrum = Spectrum::fromRGB(glm::vec3(1.0f, 1.0f, 1.0f)); // White light
-static const glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)); // Light direction
-
-static constexpr float fov = M_PI / 3.0f; // 60° field of view.
-static const float scale = std::tan(fov / 2.0f);
-
-// raceRaySpectral function to use Spectral rendering
+// In Renderer.cpp, modify the traceRaySpectral function to handle emissive surfaces:
 Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
                    const glm::vec3& rayDir,
                    int depth,
@@ -48,6 +40,14 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     if (!hitSomething)
         return backgroundSpectrum;
 
+    // Check if this is an emissive surface (light source)
+    // We can determine this by checking if the color is very bright
+    glm::vec3 colorRGB = closestHit.color.toRGB();
+    if (colorRGB.r > 1.0f || colorRGB.g > 1.0f || colorRGB.b > 1.0f) {
+        // This is a light source, return its color directly
+        return closestHit.color;
+    }
+
     // Direct illumination using a fixed light direction.
     float diffuse = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
 
@@ -58,25 +58,24 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
         HitRecord shadowRec;
         if (entity->intersect(shadowOrigin, lightDir, shadowRec)) {
             inShadow = true;
-            break;  // This break is important for efficiency
+            break;
         }
     }
     if (inShadow)
-        diffuse *= 0.3f;  // Darken if in shadow. Should be dependent on the surface of the entity.
+        diffuse *= 0.3f;
 
     Spectrum localColor = closestHit.color * lightSpectrum * diffuse;
 
-    // Monte Carlo diffuse bounce: randomly sample a direction in the hemisphere.
+    // Monte Carlo diffuse bounce
     if (depth < maxDepth) {
         glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
         glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
         Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene, lightDir);
-        localColor += indirect * 0.5f;  // Weight the contribution.
+        localColor += indirect * closestHit.color * 0.5f;  // Weight the contribution
     }
     return localColor;
 }
 
-// Update renderImage to use spectral rendering
 void Renderer::renderImage(uint32_t* pixels,
                            const Scene& scene,
                            const glm::vec3& camPos,
@@ -86,29 +85,30 @@ void Renderer::renderImage(uint32_t* pixels,
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
 
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            Spectrum pixelSpectrum;
-            // Average multiple samples.
-            for (int s = 0; s < samplesPerPixel; s++) {
-                // Jitter the ray within the pixel.
-                float offsetX = random_float();
-                float offsetY = random_float();
-                float imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
-                float imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
-                glm::vec3 rayDir = glm::normalize(forward + right * imageX + up * imageY);
-                pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene, lightDir);
+        #pragma omp parallel for collapse(2) schedule(dynamic)
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                Spectrum pixelSpectrum;
+                // Average multiple samples.
+                for (int s = 0; s < samplesPerPixel; s++) {
+                    // Jitter the ray within the pixel.
+                    float offsetX = random_float();
+                    float offsetY = random_float();
+                    float imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
+                    float imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
+                    glm::vec3 rayDir = glm::normalize(forward + right * imageX + up * imageY);
+                    pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene, lightDir);
+                }
+                pixelSpectrum *= (1.0f / samplesPerPixel);
+
+                // Convert spectrum to RGB for display
+                glm::vec3 rgbColor = pixelSpectrum.toRGB();
+
+                // Pack the color into a pixel (assuming ARGB format).
+                pixels[y * WIDTH + x] = (255 << 24) |
+                                        (static_cast<int>(glm::clamp(rgbColor.r, 0.0f, 1.0f) * 255) << 16) |
+                                        (static_cast<int>(glm::clamp(rgbColor.g, 0.0f, 1.0f) * 255) << 8) |
+                                        static_cast<int>(glm::clamp(rgbColor.b, 0.0f, 1.0f) * 255);
             }
-            pixelSpectrum *= (1.0f / samplesPerPixel);
-
-            // Convert spectrum to RGB for display
-            glm::vec3 rgbColor = pixelSpectrum.toRGB();
-
-            // Pack the color into a pixel (assuming ARGB format).
-            pixels[y * WIDTH + x] = (255 << 24) |
-                                    (static_cast<int>(glm::clamp(rgbColor.r, 0.0f, 1.0f) * 255) << 16) |
-                                    (static_cast<int>(glm::clamp(rgbColor.g, 0.0f, 1.0f) * 255) << 8) |
-                                    static_cast<int>(glm::clamp(rgbColor.b, 0.0f, 1.0f) * 255);
         }
-    }
 }

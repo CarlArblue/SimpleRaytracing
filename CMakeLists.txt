@@ -10,12 +10,14 @@ set(CMAKE_BUILD_TYPE Release)
 # Optimization flags for Release mode
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto -ffast-math -fno-trapping-math -DNDEBUG")
 
-
 # Find SDL2
 find_package(SDL2 REQUIRED)
 
 # Find Vulkan
 find_package(Vulkan REQUIRED)
+
+# Find OpenMP
+find_package(OpenMP REQUIRED)
 
 # Gather all source files
 set(SOURCES
@@ -41,3 +43,6 @@ target_include_directories(SimpleRaytracing PRIVATE ${Vulkan_INCLUDE_DIRS})
 
 # Link against Vulkan
 target_link_libraries(SimpleRaytracing PRIVATE Vulkan::Vulkan)
+
+# Link against OpenMP
+target_link_libraries(SimpleRaytracing PRIVATE OpenMP::OpenMP_CXX)
