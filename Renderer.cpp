@@ -22,12 +22,13 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     closestHit.t = std::numeric_limits<float>::infinity();
     bool hitSomething = false;
 
-    // Test each entity in the scene.
+    // Find closest hit.
     for (const auto& entity : scene.entities) {
         HitRecord rec;
         if (entity->intersect(rayOrigin, rayDir, rec)) {
             if (rec.t < closestHit.t) {
                 closestHit = rec;
+                closestHit.hitEntity = entity;
                 hitSomething = true;
             }
         }
@@ -36,30 +37,26 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     if (!hitSomething)
         return backgroundSpectrum;
 
-    // If we hit an emissive surface, return its emission
-    if (closestHit.isEmissive) {
+    // Direct hit on an emissive surface.
+    if (closestHit.isEmissive)
         return closestHit.emission;
-    }
 
-    // Start with ambient light
+    // Start with ambient light.
     Spectrum localColor = closestHit.color * Spectrum(0.1f);  // Ambient term
 
-    // Loop through each emissive entity (light) in the scene
+    // Process emissive entities (lights) as before...
     for (const auto& entity : scene.entities) {
         if (!entity->isEmissive())
-            continue; // Skip non-emissive objects
+            continue;
 
-        // Sample a point on the emissive entity (the light)
         glm::vec3 samplePoint, lightNormal;
         float pdf;
         entity->sampleLight(closestHit.hitPoint, samplePoint, lightNormal, pdf);
 
-        // Compute the direction and distance from the hit point to the sampled point
         glm::vec3 lightDir = samplePoint - closestHit.hitPoint;
         float distance = glm::length(lightDir);
         lightDir = glm::normalize(lightDir);
 
-        // Shadow check: cast a ray toward the light sample to see if it is occluded.
         glm::vec3 shadowOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
         bool inShadow = false;
         for (const auto& other : scene.entities) {
@@ -71,23 +68,35 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
         }
 
         if (!inShadow) {
-            // Compute cosine factor between surface normal and light direction.
             float cosTheta = std::max(0.0f, glm::dot(closestHit.normal, lightDir));
-            // Distance squared for attenuation.
             float distanceSquared = distance * distance;
-            // Use getEmission() to get the light's emission spectrum.
             Spectrum lightEmission = entity->getEmission();
-            // Accumulate the direct light contribution.
             localColor += closestHit.color * lightEmission * cosTheta / (pdf * distanceSquared);
         }
     }
 
-    // Monte Carlo diffuse bounce for indirect illumination.
+    // Use BSDF for the indirect bounce.
     if (depth < maxDepth) {
-        glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
-        glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
-        Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene);
-        localColor += indirect * closestHit.color * 0.5f;  // Weight the indirect contribution
+        BSDF* bsdf = nullptr;
+        if (closestHit.hitEntity) {
+            bsdf = closestHit.hitEntity->getBSDF();
+        }
+
+        if (bsdf) {
+            float bsdfPdf;
+            // Note: Adjust the incoming direction (-rayDir) if needed, depending on your convention.
+            glm::vec3 newDir = bsdf->sample(-rayDir, closestHit.normal, bsdfPdf);
+            glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
+            Spectrum indirect = traceRaySpectral(newOrigin, newDir, depth + 1, scene);
+            Spectrum bsdfVal = bsdf->evaluate(-rayDir, newDir, closestHit.normal);
+            localColor += indirect * bsdfVal;
+        } else {
+            // Fallback: cosine-weighted hemisphere sampling.
+            glm::vec3 randomDir = random_in_hemisphere(closestHit.normal);
+            glm::vec3 newOrigin = closestHit.hitPoint + closestHit.normal * shadowBias;
+            Spectrum indirect = traceRaySpectral(newOrigin, randomDir, depth + 1, scene);
+            localColor += indirect * closestHit.color * 0.5f;
+        }
     }
 
     return localColor;
@@ -102,24 +111,33 @@ void Renderer::renderImage(uint32_t* pixels,
 
     float aspectRatio = static_cast<float>(WIDTH) / HEIGHT;
 
-        #pragma omp parallel for collapse(2) schedule(dynamic) // Should use default(none) and specify for best practice
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                Spectrum pixelSpectrum;
+    // Declare the variables before the parallel region
+    int x, y;                // Loop indices
+    Spectrum pixelSpectrum;  // To store the color value per pixel
+    float offsetX, offsetY;  // Jitter offsets for each sample
+    float imageX, imageY;    // Image coordinates for ray casting
+    glm::vec3 rayDir;        // Ray direction
+    glm::vec3 rgbColor;       // Convert from spectrum to RGB
+
+    #pragma omp parallel for collapse(2) schedule(dynamic) default(none) \
+    shared(scale, aspectRatio, pixels, scene, camPos, forward, right, up, samplesPerPixel) \
+    private(x, y, pixelSpectrum, offsetX, offsetY, imageX, imageY, rayDir, rgbColor)
+        for (y = 0; y < HEIGHT; y++) {
+            for (x = 0; x < WIDTH; x++) {
                 // Average multiple samples.
                 for (int s = 0; s < samplesPerPixel; s++) {
                     // Jitter the ray within the pixel.
-                    float offsetX = random_float();
-                    float offsetY = random_float();
-                    float imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
-                    float imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
-                    glm::vec3 rayDir = glm::normalize(forward + right * imageX + up * imageY);
+                    offsetX = random_float();
+                    offsetY = random_float();
+                    imageX = (2.0f * ((x + offsetX) / (float)WIDTH) - 1.0f) * aspectRatio * scale;
+                    imageY = (1.0f - 2.0f * ((y + offsetY) / (float)HEIGHT)) * scale;
+                    rayDir = glm::normalize(forward + right * imageX + up * imageY);
                     pixelSpectrum += traceRaySpectral(camPos, rayDir, 0, scene);
                 }
                 pixelSpectrum *= (1.0f / samplesPerPixel);
 
                 // Convert spectrum to RGB for display
-                glm::vec3 rgbColor = pixelSpectrum.toRGB();
+                rgbColor = pixelSpectrum.toRGB();
 
                 // Pack the color into a pixel (assuming ARGB format).
                 pixels[y * WIDTH + x] = (255 << 24) |

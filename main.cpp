@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "Renderer.h"
 #include "SpectralData.h"
+#include "LambertianBSDF.h"
 
 // Create a Cornell Box scene
 Scene createCornellBox() {
@@ -106,7 +107,7 @@ Scene createCornellBox() {
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 - lightSize/2),
         Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
-        Spectrum(10.0f)
+        Spectrum(20.0f)
     ));
 
     scene.addEntity(std::make_shared<Triangle>(
@@ -114,7 +115,7 @@ Scene createCornellBox() {
         glm::vec3(-lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         glm::vec3(lightSize/2, lightY, -halfSize - roomSize/2 + lightSize/2),
         Spectrum::fromRGB(glm::vec3(0.8f, 0.8f, 0.8f)),
-        Spectrum(10.0f)
+        Spectrum(20.0f)
     ));
 
     // Left box (tall)
@@ -331,6 +332,17 @@ Scene createCornellBox() {
         Spectrum::fromRGB(shortBoxColor),
         Spectrum(0.0f)
     ));
+
+    // Create an instance of a Lambertian BSDF with a diffuse red color.
+     BSDF* bsdf_lamb = new LambertianBSDF(Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f)));
+
+     // Then add the sphere to the scene using the BSDF pointer.
+     scene.addEntity(std::make_shared<Sphere>(
+         glm::vec3(0, 0, 0),
+         1.0,
+         Spectrum::fromRGB(glm::vec3(1.0f, 0.0f, 0.0f)),
+         bsdf_lamb
+     ));
 
     return scene;
 }
