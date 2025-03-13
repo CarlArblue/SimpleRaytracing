@@ -8,6 +8,7 @@
 
 #include "SpectralData.h"
 #include "BSDF.h"
+#include "AABB.h"
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -26,8 +27,11 @@ struct HitRecord {
 // Abstract base class for all scene entities.
 class Entity {
 public:
+
+    // AABB
+    virtual AABB getBounds() const = 0;
+
     // Test if the ray (origin, dir) intersects the entity.
-    // If it does, fill in the hit record and return true.
     virtual bool intersect(const glm::vec3& origin, const glm::vec3& dir, HitRecord& rec) const = 0;
 
     // Add emission getter
@@ -84,6 +88,17 @@ public:
         return bsdf;
     }
 
+    AABB getBounds() const override {
+        glm::vec3 min = glm::min(glm::min(v0, v1), v2);
+        glm::vec3 max = glm::max(glm::max(v0, v1), v2);
+        // Add a small epsilon to ensure the AABB has volume even for flat triangles
+        const float eps = 0.0001f;
+        if (min.x == max.x) max.x += eps;
+        if (min.y == max.y) max.y += eps;
+        if (min.z == max.z) max.z += eps;
+        return AABB(min, max);
+    }
+
 };
 
 // Sphere class representing a 3D sphere.
@@ -113,6 +128,10 @@ public:
 
     BSDF* getBSDF() const override {
         return bsdf;
+    }
+
+    AABB getBounds() const override {
+        return AABB(center - glm::vec3(radius), center + glm::vec3(radius));
     }
 
 };

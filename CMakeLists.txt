@@ -27,6 +27,8 @@ set(SOURCES
         Renderer.cpp
         SamplingHelpers.cpp
         SpectralData.cpp
+        AABB.h
+        BVHNode.h
 )
 
 # Create the executable

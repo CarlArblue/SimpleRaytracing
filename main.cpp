@@ -370,6 +370,7 @@ int main() {
 
     // In main(), replace the scene creation with:
     Scene scene = createCornellBox();
+    scene.buildBVH();
 
     bool running = true;
     SDL_Event event;

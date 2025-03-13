@@ -22,14 +22,18 @@ Spectrum traceRaySpectral(const glm::vec3& rayOrigin,
     closestHit.t = std::numeric_limits<float>::infinity();
     bool hitSomething = false;
 
-    // Find closest hit.
-    for (const auto& entity : scene.entities) {
-        HitRecord rec;
-        if (entity->intersect(rayOrigin, rayDir, rec)) {
-            if (rec.t < closestHit.t) {
-                closestHit = rec;
-                closestHit.hitEntity = entity;
-                hitSomething = true;
+    if (scene.bvh) {
+        hitSomething = scene.bvh->intersect(rayOrigin, rayDir, closestHit);
+    } else {
+        // Fallback to the existing loop if BVH not built
+        for (const auto& entity : scene.entities) {
+            HitRecord rec;
+            if (entity->intersect(rayOrigin, rayDir, rec)) {
+                if (rec.t < closestHit.t) {
+                    closestHit = rec;
+                    closestHit.hitEntity = entity;
+                    hitSomething = true;
+                }
             }
         }
     }
