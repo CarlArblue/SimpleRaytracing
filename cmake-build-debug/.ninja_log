@@ -1,7 +1,7 @@
 # ninja log v6
 4	708	1741894620645876044	CMakeFiles/SimpleRaytracing.dir/SpectralData.cpp.o	3c56e9e0ebf9c53c
 4	866	1741894620645876044	CMakeFiles/SimpleRaytracing.dir/SamplingHelpers.cpp.o	992581a4799d0c0
-2	141	1742209460659879219	build.ninja	26fb61da21930bb6
+2	141	1742210418936529978	build.ninja	26fb61da21930bb6
 3	1068	1741894620644875912	CMakeFiles/SimpleRaytracing.dir/Triangle.cpp.o	f3ae711b24c5ee62
 3	1816	1741894620644875912	CMakeFiles/SimpleRaytracing.dir/main.cpp.o	17115be8201e9cdf
 1816	3396	1741894622458104559	SimpleRaytracing	5a01ce3b3f4fa7ad
