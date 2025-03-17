@@ -404,7 +404,7 @@ int main() {
         glm::vec3 right = glm::normalize(glm::cross(forward, worldUp));
         glm::vec3 up = glm::normalize(glm::cross(right, forward));
 
-        // TODO: Replace with Vulkan rendering when ready
+        // TODO: Replace with Vulkan rendering when ready asdf
         Renderer::renderImage(pixels.data(), scene, camPos, forward, right, up);
 
         SDL_LockSurface(surface);
