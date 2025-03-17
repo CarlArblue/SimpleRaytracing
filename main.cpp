@@ -9,6 +9,7 @@
 #include "Renderer.h"
 #include "SpectralData.h"
 #include "LambertianBSDF.h"
+#include "VulkanContext.h"
 
 // Create a Cornell Box scene
 Scene createCornellBox() {
@@ -354,21 +355,37 @@ int main() {
         return -1;
     }
 
+    // Create window with Vulkan flag
     SDL_Window* window = SDL_CreateWindow("Monte Carlo Path tracing Spectral Rendering",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           Renderer::WIDTH, Renderer::HEIGHT,
-                                          SDL_WINDOW_SHOWN);
+                                          SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN);
     if (!window) {
         std::cerr << "Window creation failed: " << SDL_GetError() << "\n";
         SDL_Quit();
         return -1;
     }
 
+    // Initialize Vulkan
+    VulkanContext vulkanContext;
+    if (!vulkanContext.initialize(window)) {
+        std::cerr << "Vulkan initialization failed\n";
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
+    // Check if ray tracing is supported
+    if (!vulkanContext.hasRayTracingSupport()) {
+        std::cout << "Warning: Ray tracing extensions not supported, falling back to CPU rendering\n";
+        // We'll continue with CPU rendering for now
+    }
+
     SDL_Surface* surface = SDL_GetWindowSurface(window);
     std::vector<uint32_t> pixels(Renderer::WIDTH * Renderer::HEIGHT);
 
-    // In main(), replace the scene creation with:
+    // Create the scene and build BVH
     Scene scene = createCornellBox();
     scene.buildBVH();
 
@@ -387,6 +404,7 @@ int main() {
         glm::vec3 right = glm::normalize(glm::cross(forward, worldUp));
         glm::vec3 up = glm::normalize(glm::cross(right, forward));
 
+        // TODO: Replace with Vulkan rendering when ready
         Renderer::renderImage(pixels.data(), scene, camPos, forward, right, up);
 
         SDL_LockSurface(surface);
@@ -396,6 +414,8 @@ int main() {
 
         SDL_Delay(16); // ~60 FPS.
     }
+
+    // Clean up Vulkan (vulkanContext destructor will handle this)
 
     SDL_DestroyWindow(window);
     SDL_Quit();

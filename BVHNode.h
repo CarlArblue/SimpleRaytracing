@@ -21,8 +21,7 @@ public:
     // Constructors
     BVHNode() {}
 
-    // Modified BVHNode constructor
-    BVHNode(const std::vector<std::shared_ptr<Entity>>& entities, size_t start, size_t end) {
+    BVHNode(std::vector<std::shared_ptr<Entity>>& entities, size_t start, size_t end) {
         int axis = rand() % 3;
 
         auto comparator = [axis](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
@@ -44,18 +43,12 @@ public:
                 right = entities[start];
             }
         } else {
-            // Create a mutable copy we can sort
-            std::vector<std::shared_ptr<Entity>> sortedEntities;
-            sortedEntities.reserve(objectSpan);
-            for (size_t i = start; i < end; i++) {
-                sortedEntities.push_back(entities[i]);
-            }
-            std::sort(sortedEntities.begin(), sortedEntities.end(), comparator);
+            // Sort just the portion of the array we need
+            std::sort(entities.begin() + start, entities.begin() + end, comparator);
 
-            size_t mid = sortedEntities.size() / 2;
-            // Now use the sorted vector with proper indices
-            left = std::make_shared<BVHNode>(sortedEntities, 0, mid);
-            right = std::make_shared<BVHNode>(sortedEntities, mid, sortedEntities.size());
+            size_t mid = start + objectSpan / 2;
+            left = std::make_shared<BVHNode>(entities, start, mid);
+            right = std::make_shared<BVHNode>(entities, mid, end);
         }
 
         AABB boxLeft = left->getBounds();
